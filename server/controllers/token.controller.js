@@ -1,7 +1,7 @@
+import { StatusCodes } from "http-status-codes";
 import { getFullTokenInfo } from "../services/index.js";
 import { analyzeTokenSafety } from "../utilities/index.js";
-import { StatusCodes } from "http-status-codes";
-// ✅ Main controller
+
 export const fetchAndAnalyzeToken = async (req, res) => {
     try {
         const query = req.query.q;
@@ -22,6 +22,8 @@ export const fetchAndAnalyzeToken = async (req, res) => {
         }
         // 2️⃣ Analyze token safety
         const safetyReport = analyzeTokenSafety(tokenInfo.data);
+       
+        
         // 3️⃣ Return clean, typed JSON response
         return res.status(StatusCodes.OK).json({
             success: true,
