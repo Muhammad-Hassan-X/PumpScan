@@ -15,7 +15,7 @@ app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/profile", verifyAuth, profileRoute);
 app.use("/api/v1/history", verifyAuth, historyRoute);
 app.use("/api/v1/watch-list", verifyAuth, watchListRoute);
-app.use("/api/v1/tokens", searchRoute);
+app.use("/api/v1/tokens",verifyAuth,  searchRoute);
 app.get("/Test-route", (req, res) => {
     return res.sendResponse(StatusCodes.OK, true, "Server is running....", null, null);
 });

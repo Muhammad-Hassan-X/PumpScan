@@ -15,3 +15,34 @@ export const deleteHistory = async (req, res) => {
     }
     return res.sendResponse(StatusCodes.OK, true, "History deleted successfully", historyData, null);
 };
+
+export const getHistory = async (req, res) => {
+  const user_id = req.userId;
+  console.log(user_id);
+  
+  console.log("Logged in userId:", req.userId);
+
+  const { data, error } = await supabase
+  .from("history")
+  .select(`
+    *,
+    token:token_id (*)
+  `)
+  .eq("user_id", user_id)
+  .order("searched_at", { ascending: false });
+ // latest first
+
+  if (error) {
+    console.error("History fetch error:", error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Failed to fetch history",
+      error,
+    });
+  }
+
+  return res.json({
+    success: true,
+    data,
+  });
+};
