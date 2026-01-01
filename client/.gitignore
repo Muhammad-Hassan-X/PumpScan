@@ -29,14 +29,12 @@ yarn-error.*
 # macOS
 .DS_Store
 *.pem
-
+data
 # local env files
 .env*.local
 
 # typescript
 *.tsbuildinfo
-
-app-example
 
 # generated native folders
 /ios
