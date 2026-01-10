@@ -55,12 +55,12 @@ const styles = StyleSheet.create({
     padding: 12,
 
     marginBottom: 10,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderTopWidth: 1,
-    borderColor: "#333",
-    borderTopColor: "#333",
-    shadowColor: Colors.dark,
+            borderRadius: 10,
+            borderWidth: 1,
+            borderTopWidth: 1,
+            borderColor: "#333",
+            borderTopColor: "#333",
+            shadowColor: Colors.dark,
 
     shadowOpacity: 0.25,
     shadowRadius: 10,

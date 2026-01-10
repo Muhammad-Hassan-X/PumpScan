@@ -6,13 +6,19 @@ import AnimatedCounter from "@/components/Counter";
 import Colors from "@/constants/colors";
 import { PieChart } from "react-native-gifted-charts";
 import ListView from "@/components/ListView";
+import SearchInput from "@/components/SearchInput";
+import SearchScreen from "@/screens/token/SearchScreen";
+
 const index = () => {
+  const onchange = () => {};
   return (
     <Screen>
       <View>
-        
-        <ListView></ListView>
+        {/* <ListView></ListView> */}
+        {/* <SearchInput onChange={onchange} key={""} />
+         */}
       </View>
+      <SearchScreen/>
     </Screen>
   );
 };

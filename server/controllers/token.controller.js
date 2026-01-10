@@ -35,6 +35,8 @@ export const fetchAndAnalyzeToken = async (req, res) => {
         
 
         const user_id = req.userId
+        console.log('user_id', user_id);
+        
 
         const { error: historyError } = await supabase.from("history").insert(
             {
