@@ -25,11 +25,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
           placeholder={placeholder || "Search tokens..."}
           placeholderTextColor={Colors.sub_heading}
         />
-        <SimpleLineIcons
-          name="magnifier"
-          size={20}
-          color={Colors.heading}
-        />
+        <SimpleLineIcons name="magnifier" size={20} color={Colors.heading} />
       </View>
     </>
   );
@@ -43,6 +39,9 @@ const styles = StyleSheet.create({
     fontFamily: font.Regular,
 
     flex: 1,
+    height: 50,
+   
+    paddingHorizontal: 10,
   },
   wrapper: {
     flexDirection: "row",

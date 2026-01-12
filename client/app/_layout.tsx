@@ -34,7 +34,7 @@ export default function RootLayout() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#242424" }}>
       <StatusBar style="light" backgroundColor="#242424" />
-      {shouldShowHeader && <Header />}
+      {/* {shouldShowHeader && <Header />} */}
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="index" />

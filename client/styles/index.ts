@@ -1,4 +1,5 @@
 import Colors from "@/constants/colors";
+import font from "@/constants/fonts";
 import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
@@ -14,6 +15,11 @@ const styles = StyleSheet.create({
     textShadowColor: Colors.heading,
     textShadowOffset: { width: 0.5, height: 0.5 },
     textShadowRadius: 1,
+  },
+  input: {
+    color: Colors.sub_heading,
+    fontFamily: font.Regular,
+    flex: 1,
   },
 });
 

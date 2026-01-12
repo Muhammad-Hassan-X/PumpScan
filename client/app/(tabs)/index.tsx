@@ -8,17 +8,18 @@ import { PieChart } from "react-native-gifted-charts";
 import ListView from "@/components/ListView";
 import SearchInput from "@/components/SearchInput";
 import SearchScreen from "@/screens/token/SearchScreen";
+import SignUp from "@/screens/auth/SignUp";
 
 const index = () => {
   const onchange = () => {};
   return (
     <Screen>
-      <View>
-        {/* <ListView></ListView> */}
-        {/* <SearchInput onChange={onchange} key={""} />
-         */}
+      {/* <View>
+      <ListView></ListView>
       </View>
-      <SearchScreen/>
+      <SearchScreen /> */}
+      <SignUp></SignUp>
+      
     </Screen>
   );
 };
