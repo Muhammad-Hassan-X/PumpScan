@@ -8,8 +8,16 @@ interface Inputprops {
   iconName: string | any;
   isPassword: boolean;
   placeholder: string;
+  value?: string;
+  onChangeText?: (text: string) => void;
 }
-const InputField = ({ iconName, isPassword, placeholder }: Inputprops) => {
+const InputField = ({
+  iconName,
+  isPassword,
+  placeholder,
+  value,
+  onChangeText,
+}: Inputprops) => {
   return (
     <View>
       <View style={styles.wrapper}>
@@ -24,6 +32,8 @@ const InputField = ({ iconName, isPassword, placeholder }: Inputprops) => {
           placeholderTextColor={Colors.sub_heading}
           secureTextEntry={isPassword}
           placeholder={placeholder}
+          value={value}
+          onChangeText={onChangeText}
         />
       </View>
     </View>
@@ -32,7 +42,6 @@ const InputField = ({ iconName, isPassword, placeholder }: Inputprops) => {
 const styles = StyleSheet.create({
   wrapper: {
     flexDirection: "row",
-
     padding: 10,
     borderRadius: 10,
     color: Colors.sub_heading,
@@ -54,7 +63,6 @@ const styles = StyleSheet.create({
     color: Colors.sub_heading,
     fontFamily: font.Regular,
     flex: 1,
-    
   },
 });
 

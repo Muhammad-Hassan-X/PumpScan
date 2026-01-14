@@ -42,6 +42,7 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: "center",
     justifyContent: "space-between",
+    backgroundColor: Colors.back_ground_color,
   },
   text: {
     color: Colors.heading,

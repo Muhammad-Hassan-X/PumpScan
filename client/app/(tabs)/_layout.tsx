@@ -14,7 +14,7 @@ const Layout = () => {
     <>
       <Tabs
         screenOptions={{
-          headerShown: false, 
+          headerShown: false,
           tabBarStyle: {
             backgroundColor: "#242424",
             position: "absolute",
@@ -43,13 +43,13 @@ const Layout = () => {
           options={{
             tabBarIcon: ({ color, size, focused }) => (
               <View
-                 style={{
-                  width: 40, // <= perfect size for your screenshot
+                style={{
+                  width: 40,
                   height: 40,
                   borderRadius: 20,
                   justifyContent: "center",
                   alignItems: "center",
-                  marginTop:20,
+                  marginTop: 20,
                   backgroundColor: focused ? "#6444fe" : "transparent",
                 }}
               >
@@ -64,9 +64,9 @@ const Layout = () => {
             tabBarIcon: ({ color, size, focused }) => (
               <View
                 style={{
-                  width: 40, // <= perfect size for your screenshot
+                  width: 40,
                   height: 40,
-                  marginTop:20,
+                  marginTop: 20,
                   borderRadius: 20,
                   justifyContent: "center",
                   alignItems: "center",
@@ -84,9 +84,9 @@ const Layout = () => {
             tabBarIcon: ({ color, size, focused }) => (
               <View
                 style={{
-                  width: 40, // <= perfect size for your screenshot
+                  width: 40,
                   height: 40,
-                  marginTop:20,
+                  marginTop: 20,
                   borderRadius: 20,
                   justifyContent: "center",
                   alignItems: "center",

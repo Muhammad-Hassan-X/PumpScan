@@ -12,8 +12,10 @@ import font from "@/constants/fonts";
 import { SimpleLineIcons } from "@expo/vector-icons";
 import InputField from "@/components/InputField";
 import Icon from "@/components/Icons";
+import { useRouter } from "expo-router";
 
 const SignUp = () => {
+  const router = useRouter();
   return (
     <ScrollView
       contentContainerStyle={styles.container}
@@ -42,7 +44,7 @@ const SignUp = () => {
           <View style={styles.textContainer}>
             <Text style={styles.accountLink}>
               Already have an account?{" "}
-              <Pressable onPress={() => console.log("Go to Login")}>
+              <Pressable onPress={() => router.push("login")}>
                 {({ pressed }) => (
                   <Text style={[styles.loginLink, pressed && { opacity: 0.6 }]}>
                     Login
@@ -67,6 +69,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
+    backgroundColor: Colors.back_ground_color,
   },
   text: {
     fontFamily: font.Bold,

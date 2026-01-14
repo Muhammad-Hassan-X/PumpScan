@@ -3,21 +3,30 @@ import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFonts } from "expo-font";
 import { ActivityIndicator, View } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React from "react";
 import Header from "@/components/Header";
-import { useRoute } from "@react-navigation/native";
 
 export default function RootLayout() {
-  const route = useRoute();
-  const hideHeaderScreens = ["profile", "login"]; 
-
-  const shouldShowHeader = !hideHeaderScreens.includes(route.name);
-
   const [fontsLoaded] = useFonts({
     "Ubuntu-Regular": require("../assets/fonts/Ubuntu-Regular.ttf"),
     "Ubuntu-Medium": require("../assets/fonts/Ubuntu-Medium.ttf"),
     "Ubuntu-Bold": require("../assets/fonts/Ubuntu-Bold.ttf"),
   });
-  if (!fontsLoaded) {
+
+  const [authChecked, setAuthChecked] = React.useState(false);
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkAuth = async () => {
+      const token = await AsyncStorage.getItem("token");
+      setIsLoggedIn(!!token);
+      setAuthChecked(true);
+    };
+    checkAuth();
+  }, []);
+
+  if (!fontsLoaded || !authChecked) {
     return (
       <View
         style={{
@@ -31,15 +40,23 @@ export default function RootLayout() {
       </View>
     );
   }
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#242424" }}>
       <StatusBar style="light" backgroundColor="#242424" />
-      {/* {shouldShowHeader && <Header />} */}
+
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="index" />
-        <Stack.Screen name="contact" />
-        <Stack.Screen name="login" />
+        {isLoggedIn ? (
+          <Stack.Screen
+            name="(tabs)"
+            options={{
+              header: () => <Header />,
+              headerShown: true,
+            }}
+          />
+        ) : (
+          <Stack.Screen name="(auth)" />
+        )}
       </Stack>
     </SafeAreaView>
   );

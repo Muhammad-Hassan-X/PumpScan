@@ -6,57 +6,75 @@ import {
   Pressable,
   ScrollView,
 } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import Colors from "@/constants/colors";
 import font from "@/constants/fonts";
-import { SimpleLineIcons } from "@expo/vector-icons";
 import InputField from "@/components/InputField";
 import Icon from "@/components/Icons";
+import { Link, useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const SignUp = () => {
+const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = async () => {
+    // ✅ Mock authentication
+    if (email === "test@example.com" && password === "1234") {
+      // Save token
+      await AsyncStorage.setItem("token", "user-token");
+
+      // Navigate to tabs (replace so user can't go back)
+      router.replace("/(tabs)");
+    } else {
+      alert("Invalid credentials");
+    }
+  };
+
+  const router = useRouter();
   return (
     <ScrollView
       contentContainerStyle={styles.container}
       keyboardShouldPersistTaps="handled"
     >
       <View style={styles.container}>
-        <Text style={styles.text}>Sign Up</Text>
-        <Icon name={"Search"} size={300} style={styles.icon} />
+        <Text style={styles.text}>Login</Text>
+        <Icon name={"Login"} size={300} style={styles.icon} />
 
-        <InputField
-          iconName={"user"}
-          isPassword={false}
-          placeholder="Enter user name "
-        ></InputField>
         <InputField
           iconName={"envelope"}
           isPassword={false}
           placeholder="Enter you Email"
+          value={email}
+          onChangeText={setEmail}
         ></InputField>
         <InputField
           iconName={"lock"}
           isPassword={true}
+          value={password}
+          onChangeText={setPassword}
           placeholder="Enter you Password "
         ></InputField>
         <View>
           <View style={styles.textContainer}>
             <Text style={styles.accountLink}>
-              Already have an account?{" "}
-              <Pressable onPress={() => console.log("Go to Login")}>
+              Dont have an account?{" "}
+              <Pressable onPress={() => router.push("signUp")}>
                 {({ pressed }) => (
                   <Text style={[styles.loginLink, pressed && { opacity: 0.6 }]}>
-                    Login
+                    SignUp
                   </Text>
                 )}
               </Pressable>
             </Text>
           </View>
 
-          <Pressable
-            onPress={() => console.log("Pressed")}
-            style={styles.button}
-          >
-            <Text style={styles.buttonText}>Sign In</Text>
+          <Pressable style={styles.button} onPress={handleLogin}>
+            {({ pressed }) => (
+              <Text style={[styles.buttonText, pressed && { opacity: 0.6 }]}>
+                Login
+              </Text>
+            )}
           </Pressable>
         </View>
       </View>
@@ -67,6 +85,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
+    backgroundColor: Colors.back_ground_color,
   },
   text: {
     fontFamily: font.Bold,
@@ -115,4 +134,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignUp;
+export default Login;
