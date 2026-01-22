@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
-
+import {router} from 'expo-router';
 export default function Header() {
   const name = "hassan";
   return (
@@ -18,7 +18,7 @@ export default function Header() {
       </View>
       <View style={styles.iconContainer}>
         {/* Notification Icon */}
-        <TouchableOpacity style={styles.iconWrapper}>
+        <TouchableOpacity style={styles.iconWrapper} onPress={() => router.push('screens/notification')}>
           <Ionicons name="notifications-outline" style={styles.icon} />
 
           {/* Badge */}
@@ -28,7 +28,7 @@ export default function Header() {
         </TouchableOpacity>
 
         {/* Search Icon */}
-        <TouchableOpacity style={styles.iconWrapper}>
+        <TouchableOpacity style={styles.iconWrapper}  onPress={() => router.push('screens/searchpage')}>
           <Ionicons name="search-outline" style={styles.icon} />
         </TouchableOpacity>
       </View>

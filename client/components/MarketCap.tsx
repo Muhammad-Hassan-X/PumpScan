@@ -4,7 +4,6 @@ import Colors from "@/constants/colors";
 import AnimatedCounter from "./Counter";
 import cs from "@/styles";
 import { PieChart } from "react-native-gifted-charts";
-import font from "@/constants/fonts";
 import HomePichart from "./HomePichart";
 const MarketCap = () => {
   const pieData = [

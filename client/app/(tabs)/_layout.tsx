@@ -18,7 +18,7 @@ const Layout = () => {
           tabBarStyle: {
             backgroundColor: "#242424",
             position: "absolute",
-            bottom: 40,
+            bottom: 15,
             justifyContent: "center",
             alignSelf: "center",
             alignItems: "center",

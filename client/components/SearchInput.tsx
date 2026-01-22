@@ -8,6 +8,7 @@ interface SearchInputProps {
   value: string;
   onChange: (text: string) => void;
   placeholder?: string;
+  onPress?: () => void;
 }
 
 const SearchInput: React.FC<SearchInputProps> = ({
@@ -25,7 +26,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
           placeholder={placeholder || "Search tokens..."}
           placeholderTextColor={Colors.sub_heading}
         />
-        <SimpleLineIcons name="magnifier" size={20} color={Colors.heading} />
+        <SimpleLineIcons name="magnifier" size={20} color={Colors.heading} style={styles.icon}/>
       </View>
     </>
   );
@@ -43,13 +44,22 @@ const styles = StyleSheet.create({
    
     paddingHorizontal: 10,
   },
+  icon: {
+    color: Colors.heading,
+    fontSize: 25,
+    fontWeight: "bold",
+    textShadowColor: Colors.heading,
+    textShadowOffset: { width: 0.5, height: 0.5 },
+    textShadowRadius: 1,
+    marginRight: 10,
+  },
   wrapper: {
     flexDirection: "row",
 
-    padding: 10,
+    padding: 3,
     borderRadius: 10,
     color: Colors.sub_heading,
-    margin: 10,
+    // margin: 10,
     alignItems: "center",
     borderWidth: 1,
     borderTopWidth: 1,
