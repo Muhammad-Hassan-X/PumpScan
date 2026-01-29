@@ -4,8 +4,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useFonts } from "expo-font";
 import { ActivityIndicator, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
+import CustomSplash from "@/components/CustomSplash";
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -16,7 +17,7 @@ export default function RootLayout() {
 
   const [authChecked, setAuthChecked] = React.useState(false);
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-
+  const [showSplash, setShowSplash] = useState(true);
   React.useEffect(() => {
     const checkAuth = async () => {
       const token = await AsyncStorage.getItem("token");
@@ -25,6 +26,9 @@ export default function RootLayout() {
     };
     checkAuth();
   }, []);
+  if (showSplash) {
+    return <CustomSplash onFinish={() => setShowSplash(false)} />;
+  }
 
   if (!fontsLoaded || !authChecked) {
     return (

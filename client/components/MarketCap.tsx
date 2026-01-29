@@ -5,6 +5,7 @@ import AnimatedCounter from "./Counter";
 import cs from "@/styles";
 import { PieChart } from "react-native-gifted-charts";
 import HomePichart from "./HomePichart";
+import font from "@/constants/fonts";
 const MarketCap = () => {
   const pieData = [
     {
@@ -22,9 +23,7 @@ const MarketCap = () => {
       <View style={cs.container}>
         <View style={styles.wapper}>
           <View>
-            <Text className="text-heading font-ubuntuMedium">
-              Total Market Cap{" "}
-            </Text>
+            <Text style={styles.headingText}>Total Market Cap </Text>
 
             <AnimatedCounter
               value={2560000000000}
@@ -48,6 +47,12 @@ const MarketCap = () => {
 export default MarketCap;
 
 const styles = StyleSheet.create({
+  headingText: {
+    color: Colors.heading,
+    fontFamily: font.Bold,
+    marginBottom: 5,
+    fontSize: 15,
+  },
   tokenText: {
     color: Colors.heading,
     fontFamily: "Ubuntu-Bold",

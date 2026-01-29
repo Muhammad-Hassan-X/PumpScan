@@ -68,7 +68,7 @@ export const fetchAndAnalyzeToken = async (req, res) => {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: "Internal server error",
-            error: err.message,
+            error: err,
         });
     }
 };

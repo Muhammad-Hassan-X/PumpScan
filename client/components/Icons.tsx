@@ -2,9 +2,10 @@ import React from "react";
 import { ICONS } from "@/constants/icons";
 import { SvgProps } from "react-native-svg";
 
-type IconName = keyof typeof ICONS;
+export type IconName = keyof typeof ICONS;
 
-interface IconProps extends SvgProps {
+
+export interface IconProps extends SvgProps {
   name: IconName;
   size?: number;
 }
@@ -15,7 +16,7 @@ const Icon: React.FC<IconProps> = ({
   color = "#000",
   ...props
 }) => {
-  const SvgIcon = ICONS[name];
+  const SvgIcon = ICONS[name as IconName];
 
   if (!SvgIcon) return null;
 

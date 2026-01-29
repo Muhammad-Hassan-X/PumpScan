@@ -3,15 +3,18 @@ import React from "react";
 import Screen from "@/components/Screen";
 import Colors from "@/constants/colors";
 import ListView from "@/components/ListView";
-
-
+import OnboardingScreen from "../screens/onboarding/onboardingScreen";
+import TokenReport from "../screens/token/tokenReport";
 
 const index = () => {
   const onchange = () => {};
   return (
     <Screen>
       <View>
-        <ListView></ListView>
+        {/* <ListView></ListView> */}
+        <TokenReport></TokenReport>
+        {/* <OnboardingScreen></OnboardingScreen> */}
+        {/* <OnboardingScreen/> */}
       </View>
     </Screen>
   );
