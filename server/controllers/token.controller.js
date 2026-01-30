@@ -38,17 +38,28 @@ export const fetchAndAnalyzeToken = async (req, res) => {
         console.log('user_id', user_id);
         
 
-        const { error: historyError } = await supabase.from("history").insert(
-            {
-                user_id,
-                token_id: token.id,
-                searched_at: new Date().toISOString()
-            }
-        )
+
+        process.stdout.write("token data: " + JSON.stringify(token));
+        if (tokenError) {
+             console.error("Token upsert error:", tokenError);
+        }
+
+        if (token) {
+             const { error: historyError } = await supabase.from("history").insert(
+                {
+                    user_id,
+                    token_id: token.id,
+                    searched_at: new Date().toISOString()
+                }
+            )
+             if (historyError) console.error("History error:", historyError);
+        } else {
+             console.warn("Token data is null after upsert, skipping history insertion.");
+        }
 
 
-        if (tokenError) console.error("Token error:", tokenError);
-        if (historyError) console.error("History error:", historyError);
+
+
 
         // 3️⃣ Return clean, typed JSON response
         return res.status(StatusCodes.OK).json({

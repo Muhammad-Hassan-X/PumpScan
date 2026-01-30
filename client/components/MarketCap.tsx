@@ -6,18 +6,9 @@ import cs from "@/styles";
 import { PieChart } from "react-native-gifted-charts";
 import HomePichart from "./HomePichart";
 import font from "@/constants/fonts";
+import { BarChart } from "react-native-gifted-charts";
 const MarketCap = () => {
-  const pieData = [
-    {
-      value: 47,
-      color: Colors.active_color,
-      gradientCenterColor: Colors.active_color,
-      focused: true,
-    },
-    { value: 40, color: "#F7931A", gradientCenterColor: "#F7931A" },
-    { value: 16, color: "#BDB2FA", gradientCenterColor: "#8F80F3" },
-    { value: 3, color: "#FFA5BA", gradientCenterColor: "#FF7F97" },
-  ];
+  
   return (
     <>
       <View style={cs.container}>
