@@ -1,43 +1,48 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  Pressable,
-  ScrollView,
-} from "react-native";
+import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
 import React, { useState } from "react";
 import Colors from "@/constants/colors";
 import font from "@/constants/fonts";
 import InputField from "@/components/InputField";
 import Icon from "@/components/Icons";
-import { Link, useRouter } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
+import { useLogin } from "@/hooks/useLogin";
+import { useModal } from "@/context/ModalContext";
 
 const Login = () => {
+  const router = useRouter();
+  const { showModal } = useModal();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = async () => {
-    // ✅ Mock authentication
-    if (email === "test@example.com" && password === "1234") {
-      // Save token
-      await AsyncStorage.setItem("token", "user-token");
+  const { mutate: loginMutate, isPending } = useLogin();
 
-      // Navigate to tabs (replace so user can't go back)
-      router.replace("/(tabs)");
-    } else {
-      alert("Invalid credentials");
+  const handleLogin = () => {
+    console.log("Login button pressed with:", email);
+    if (!email || !password) {
+      showModal("Please fill in all fields", "error");
+      return;
     }
-  };
 
-  const router = useRouter();
+    loginMutate(
+      { email, password },
+      {
+        onSuccess: () => {
+          console.log("Login success, redirecting...");
+          router.replace("/(tabs)");
+        },
+        onError: (err) => {
+          console.error("Login error:", err);
+          showModal("Login failed: Invalid credentials");
+        },
+      },
+    );
+  };
   return (
     <ScrollView
-      contentContainerStyle={styles.container}
+      contentContainerStyle={styles.scrollContent}
       keyboardShouldPersistTaps="handled"
     >
-      <View style={styles.container}>
+      <View style={styles.contentContainer}>
         <Text style={styles.text}>Login</Text>
         <Icon name={"Login"} size={300} style={styles.icon} />
 
@@ -69,10 +74,14 @@ const Login = () => {
             </Text>
           </View>
 
-          <Pressable style={styles.button} onPress={handleLogin}>
+          <Pressable
+            style={[styles.button, isPending && { opacity: 0.7 }]}
+            onPress={handleLogin}
+            disabled={isPending}
+          >
             {({ pressed }) => (
               <Text style={[styles.buttonText, pressed && { opacity: 0.6 }]}>
-                Login
+                {isPending ? "Logging in..." : "Login"}
               </Text>
             )}
           </Pressable>
@@ -82,10 +91,14 @@ const Login = () => {
   );
 };
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 10,
+  scrollContent: {
+    flexGrow: 1,
     backgroundColor: Colors.back_ground_color,
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 24,
+    justifyContent: "center",
   },
   text: {
     fontFamily: font.Bold,
@@ -120,9 +133,9 @@ const styles = StyleSheet.create({
   },
   icon: {
     width: "100%",
-    marginTop: 10,
-    height: "100%",
+    height: 200,
     alignSelf: "center",
+    marginBottom: 20,
   },
   nameTag: {
     color: Colors.heading,

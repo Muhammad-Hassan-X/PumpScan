@@ -1,13 +1,26 @@
-import { StyleSheet, Text, View, FlatList, Image } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  Image,
+  TouchableOpacity,
+} from "react-native";
 import React from "react";
+import { useRouter } from "expo-router";
 import Colors from "@/constants/colors";
 import { formatNumber } from "@/utils/formateNumber";
 import TokenData from "@/data/token";
 import MarketCap from "./MarketCap";
 
 const ListView = () => {
+  const router = useRouter();
+
   const renderItem = ({ item }: any) => (
-    <View style={styles.card}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => router.push(`/token/${item.id}`)}
+    >
       {/* TOKEN IMAGE */}
       <Image source={{ uri: item.image }} style={styles.image} />
 
@@ -35,7 +48,7 @@ const ListView = () => {
           {item.price_change_percentage_24h.toFixed(2)}%
         </Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (

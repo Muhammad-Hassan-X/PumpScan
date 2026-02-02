@@ -6,9 +6,11 @@ import Colors from "@/constants/colors";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import font from "@/constants/fonts";
+import { useRouter } from "expo-router";
 
 const SearchScreen = () => {
   const [searchText, setSearchText] = useState("");
+  const router = useRouter();
 
   return (
     <View style={styles.pageWrapper}>
@@ -23,7 +25,7 @@ const SearchScreen = () => {
         <SearchInput onChange={setSearchText} key={""} value={searchText} />
         <TouchableOpacity
           style={styles.button}
-          onPress={() => console.log(searchText)}
+          onPress={() => router.push("/token/[id]")}
           activeOpacity={0.7}
         >
           <Text style={styles.btnText}>Search</Text>

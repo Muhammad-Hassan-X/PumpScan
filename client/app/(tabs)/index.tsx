@@ -1,20 +1,19 @@
 import { View, StyleSheet } from "react-native";
 import React, { useState, useEffect } from "react";
 import Screen from "@/components/Screen";
-import Colors from "@/constants/colors";
-import TokenReport from "../screens/token/tokenReport";
+
 import ListView from "@/components/ListView";
+import Login from "../(auth)/login";
 
 const index = () => {
- 
-
   return (
     <Screen>
       <View style={{ flex: 1 }}>
-       {/* <TokenReport></TokenReport>
-        */}
+        {/* <TokenReport></TokenReport>
+         */}
+        <Login></Login>
       </View>
-      <ListView></ListView>
+      {/* <ListView></ListView> */}
     </Screen>
   );
 };

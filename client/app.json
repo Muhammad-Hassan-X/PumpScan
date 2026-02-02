@@ -7,6 +7,7 @@
     "icon": "./assets/icons/app-logo.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "scheme": "pumpscan",
     "splash": {
       "image": "./assets/icons/app-logo.png",
       "resizeMode": "contain",

@@ -1,45 +1,78 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  Pressable,
-  ScrollView,
-} from "react-native";
-import React from "react";
+import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
+import React, { useState } from "react";
 import Colors from "@/constants/colors";
 import font from "@/constants/fonts";
-import { SimpleLineIcons } from "@expo/vector-icons";
 import InputField from "@/components/InputField";
 import Icon from "@/components/Icons";
 import { useRouter } from "expo-router";
+import { useSignup } from "@/hooks/useSignup";
+import { useModal } from "@/context/ModalContext";
 
 const SignUp = () => {
   const router = useRouter();
+  const { showModal } = useModal();
+  const { mutate: signupMutate, isPending } = useSignup();
+
+  // ✅ LOCAL STATE
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSignup = () => {
+    console.log("Signup button pressed for:", email);
+    if (!name || !email || !password) {
+      showModal("Please fill in all fields");
+      return;
+    }
+
+    signupMutate(
+      { name, email, password },
+      {
+        onSuccess: () => {
+          console.log("Signup success, redirecting...");
+          router.replace("/(tabs)");
+        },
+        onError: (err) => {
+          console.error("Signup error:", err);
+          showModal("Signup failed: Please check your details");
+        },
+      },
+    );
+  };
+
   return (
     <ScrollView
-      contentContainerStyle={styles.container}
+      contentContainerStyle={styles.scrollContent}
       keyboardShouldPersistTaps="handled"
     >
-      <View style={styles.container}>
+      <View style={styles.contentContainer}>
         <Text style={styles.text}>Sign Up</Text>
         <Icon name={"Search"} size={300} style={styles.icon} />
 
         <InputField
           iconName={"user"}
           isPassword={false}
-          placeholder="Enter user name "
-        ></InputField>
+          placeholder="Enter user name"
+          value={name}
+          onChangeText={setName}
+        />
+
         <InputField
           iconName={"envelope"}
           isPassword={false}
-          placeholder="Enter you Email"
-        ></InputField>
+          placeholder="Enter your Email"
+          value={email}
+          onChangeText={setEmail}
+        />
+
         <InputField
           iconName={"lock"}
           isPassword={true}
-          placeholder="Enter you Password "
-        ></InputField>
+          placeholder="Enter your Password"
+          value={password}
+          onChangeText={setPassword}
+        />
+
         <View>
           <View style={styles.textContainer}>
             <Text style={styles.accountLink}>
@@ -55,21 +88,29 @@ const SignUp = () => {
           </View>
 
           <Pressable
-            onPress={() => console.log("Pressed")}
-            style={styles.button}
+            onPress={handleSignup}
+            style={[styles.button, isPending && { opacity: 0.7 }]}
+            disabled={isPending}
           >
-            <Text style={styles.buttonText}>Sign In</Text>
+            <Text style={styles.buttonText}>
+              {isPending ? "Creating account..." : "Sign Up"}
+            </Text>
           </Pressable>
         </View>
       </View>
     </ScrollView>
   );
 };
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 10,
+  scrollContent: {
+    flexGrow: 1,
     backgroundColor: Colors.back_ground_color,
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 24,
+    justifyContent: "center",
   },
   text: {
     fontFamily: font.Bold,
@@ -104,9 +145,9 @@ const styles = StyleSheet.create({
   },
   icon: {
     width: "100%",
-    marginTop: 10,
-    height: "100%",
+    height: 180,
     alignSelf: "center",
+    marginBottom: 20,
   },
   nameTag: {
     color: Colors.heading,

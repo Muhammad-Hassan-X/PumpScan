@@ -3,10 +3,9 @@ import React from "react";
 import Colors from "@/constants/colors";
 import AnimatedCounter from "./Counter";
 import cs from "@/styles";
-import { PieChart } from "react-native-gifted-charts";
 import HomePichart from "./HomePichart";
 import font from "@/constants/fonts";
-import { BarChart } from "react-native-gifted-charts";
+
 const MarketCap = () => {
   
   return (

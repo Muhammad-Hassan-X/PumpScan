@@ -12,7 +12,9 @@ const Colors = {
   grey: '#242424',
   white: '#FCFCFC',
   tintColor: '#723FEB',
-  blue: '#97E0F7'
+  blue: '#97E0F7',
+  success: '#28a745', // green
+  error: '#dc3545',   // red
 };
 
 export default Colors;
