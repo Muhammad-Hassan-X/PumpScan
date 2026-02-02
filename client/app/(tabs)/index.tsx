@@ -11,15 +11,13 @@ const index = () => {
       <View style={{ flex: 1 }}>
         {/* <TokenReport></TokenReport>
          */}
-        <Login></Login>
+        {/* <Login></Login> */}
+      <ListView></ListView>
       </View>
-      {/* <ListView></ListView> */}
     </Screen>
   );
 };
 
-const styles = StyleSheet.create({
-  // ... styles if needed
-});
+
 
 export default index;

@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   Dimensions,
 } from "react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
 
 // Mock Data
 const portfolio = {
@@ -54,32 +55,34 @@ const tokens = [
 const screenWidth = Dimensions.get("window").width;
 
 const CryptoPortfolio = () => {
-  const renderToken = ({ item }: any) => (
-    <View style={styles.tokenCard}>
-      {/* Token Icon */}
-      <Image source={{ uri: item.image }} style={styles.tokenImage} />
+  const renderToken = ({ item, index }: any) => (
+    <Animated.View entering={FadeInDown.delay(index * 100).duration(500)}>
+      <View style={styles.tokenCard}>
+        {/* Token Icon */}
+        <Image source={{ uri: item.image }} style={styles.tokenImage} />
 
-      {/* Token Info */}
-      <View style={{ flex: 1, marginLeft: 10 }}>
-        <Text style={styles.tokenName}>{item.name}</Text>
-        <Text style={styles.tokenSymbol}>{item.symbol}</Text>
-        <Text style={styles.tokenQuantity}>Qty: {item.quantity}</Text>
-      </View>
+        {/* Token Info */}
+        <View style={{ flex: 1, marginLeft: 10 }}>
+          <Text style={styles.tokenName}>{item.name}</Text>
+          <Text style={styles.tokenSymbol}>{item.symbol}</Text>
+          <Text style={styles.tokenQuantity}>Qty: {item.quantity}</Text>
+        </View>
 
-      {/* Token Value */}
-      <View style={{ alignItems: "flex-end" }}>
-        <Text style={styles.tokenValue}>${item.value.toLocaleString()}</Text>
-        <Text
-          style={[
-            styles.tokenPL,
-            { color: item.profitLoss >= 0 ? "#16a34a" : "#dc2626" },
-          ]}
-        >
-          {item.profitLoss >= 0 ? "+" : ""}
-          {item.profitLoss}%
-        </Text>
+        {/* Token Value */}
+        <View style={{ alignItems: "flex-end" }}>
+          <Text style={styles.tokenValue}>${item.value.toLocaleString()}</Text>
+          <Text
+            style={[
+              styles.tokenPL,
+              { color: item.profitLoss >= 0 ? "#16a34a" : "#dc2626" },
+            ]}
+          >
+            {item.profitLoss >= 0 ? "+" : ""}
+            {item.profitLoss}%
+          </Text>
+        </View>
       </View>
-    </View>
+    </Animated.View>
   );
 
   return (

@@ -2,15 +2,16 @@ import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useOnboardingStore } from "@/store/onboardingStore";
-import { Text, View, ActivityIndicator } from "react-native";
-import Loader from "@/components/Loader";
 import "./global.css";
+import CustomSplash from "@/components/CustomSplash";
 
 export default function App() {
   const router = useRouter();
   const { isFirstLaunch, _hasHydrated } = useOnboardingStore();
-  const [isReady, setIsReady] = useState(false);
+  const [targetRoute, setTargetRoute] = useState<string | null>(null);
+  const [splashFinished, setSplashFinished] = useState(false);
 
+  // Check state to determine where to go
   useEffect(() => {
     if (!_hasHydrated) return;
 
@@ -19,32 +20,28 @@ export default function App() {
         const token = await AsyncStorage.getItem("token");
 
         if (isFirstLaunch) {
-          router.replace("/onboarding");
+          setTargetRoute("/onboarding");
         } else if (token) {
-          router.replace("/(tabs)");
+          setTargetRoute("/(tabs)");
         } else {
-          router.replace("/(auth)");
+          setTargetRoute("/(auth)");
         }
-        setIsReady(true);
       } catch (e) {
         console.error("Redirection error:", e);
+        setTargetRoute("/(auth)");
       }
     };
 
     checkState();
   }, [_hasHydrated, isFirstLaunch]);
 
-  return (
-    <View
-      style={{
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: "#242424",
-      }}
-    >
-      <ActivityIndicator size="large" color="#6444fe" />
-      <Text style={{ color: "#fff", marginTop: 10 }}>Loading...</Text>
-    </View>
-  );
+  // Handle redirection once splash is finished AND target route is known
+  useEffect(() => {
+    if (splashFinished && targetRoute) {
+      console.log("Redirecting to:", targetRoute);
+      router.replace(targetRoute as any);
+    }
+  }, [splashFinished, targetRoute]);
+
+  return <CustomSplash onFinish={() => setSplashFinished(true)} />;
 }

@@ -7,6 +7,7 @@ import Icon from "@/components/Icons";
 import { useRouter } from "expo-router";
 import { useLogin } from "@/hooks/useLogin";
 import { useModal } from "@/context/ModalContext";
+import AnimatedView from "@/components/AnimatedView";
 
 const Login = () => {
   const router = useRouter();
@@ -43,24 +44,32 @@ const Login = () => {
       keyboardShouldPersistTaps="handled"
     >
       <View style={styles.contentContainer}>
-        <Text style={styles.text}>Login</Text>
-        <Icon name={"Login"} size={300} style={styles.icon} />
+        <AnimatedView direction="down" delay={100}>
+          <Text style={styles.text}>Login</Text>
+        </AnimatedView>
+        <AnimatedView direction="down" delay={200}>
+          <Icon name={"Login"} size={300} style={styles.icon} />
+        </AnimatedView>
 
-        <InputField
-          iconName={"envelope"}
-          isPassword={false}
-          placeholder="Enter you Email"
-          value={email}
-          onChangeText={setEmail}
-        ></InputField>
-        <InputField
-          iconName={"lock"}
-          isPassword={true}
-          value={password}
-          onChangeText={setPassword}
-          placeholder="Enter you Password "
-        ></InputField>
-        <View>
+        <AnimatedView direction="up" delay={300}>
+          <InputField
+            iconName={"envelope"}
+            isPassword={false}
+            placeholder="Enter you Email"
+            value={email}
+            onChangeText={setEmail}
+          ></InputField>
+        </AnimatedView>
+        <AnimatedView direction="up" delay={400}>
+          <InputField
+            iconName={"lock"}
+            isPassword={true}
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Enter you Password "
+          ></InputField>
+        </AnimatedView>
+        <AnimatedView direction="up" delay={500}>
           <View style={styles.textContainer}>
             <Text style={styles.accountLink}>
               Dont have an account?{" "}
@@ -85,7 +94,7 @@ const Login = () => {
               </Text>
             )}
           </Pressable>
-        </View>
+        </AnimatedView>
       </View>
     </ScrollView>
   );

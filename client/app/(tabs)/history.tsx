@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React from "react";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import Colors from "@/constants/colors";
 import font from "@/constants/fonts";
 
@@ -39,20 +40,22 @@ const searchHistory = [
 ];
 
 const HistoryScreen = () => {
-  const renderItem = ({ item }: any) => (
-    <TouchableOpacity style={styles.card} activeOpacity={0.7}>
-      {/* IMAGE */}
-      <Image source={{ uri: item.image }} style={styles.image} />
+  const renderItem = ({ item, index }: any) => (
+    <Animated.View entering={FadeInDown.delay(index * 100).duration(500)}>
+      <TouchableOpacity style={styles.card} activeOpacity={0.7}>
+        {/* IMAGE */}
+        <Image source={{ uri: item.image }} style={styles.image} />
 
-      {/* TEXT */}
-      <View style={styles.textWrapper}>
-        <Text style={styles.query}>{item.query}</Text>
-        <Text style={styles.subtitle}>{item.subtitle}</Text>
-      </View>
+        {/* TEXT */}
+        <View style={styles.textWrapper}>
+          <Text style={styles.query}>{item.query}</Text>
+          <Text style={styles.subtitle}>{item.subtitle}</Text>
+        </View>
 
-      {/* RIGHT ARROW */}
-      <Text style={styles.arrow}>›</Text>
-    </TouchableOpacity>
+        {/* RIGHT ARROW */}
+        <Text style={styles.arrow}>›</Text>
+      </TouchableOpacity>
+    </Animated.View>
   );
 
   return (

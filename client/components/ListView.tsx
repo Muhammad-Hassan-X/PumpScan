@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React from "react";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { useRouter } from "expo-router";
 import Colors from "@/constants/colors";
 import { formatNumber } from "@/utils/formateNumber";
@@ -16,39 +17,43 @@ import MarketCap from "./MarketCap";
 const ListView = () => {
   const router = useRouter();
 
-  const renderItem = ({ item }: any) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() => router.push(`/token/${item.id}`)}
-    >
-      {/* TOKEN IMAGE */}
-      <Image source={{ uri: item.image }} style={styles.image} />
+  const renderItem = ({ item, index }: any) => (
+    <Animated.View entering={FadeInDown.delay(index * 100).duration(500)}>
+      <TouchableOpacity
+        style={styles.card}
+        onPress={() => router.push(`/crypto/${item.id}`)}
+      >
+        {/* TOKEN IMAGE */}
+        <Image source={{ uri: item.image }} style={styles.image} />
 
-      {/* NAME & SYMBOL */}
-      <View style={styles.nameWrapper}>
-        <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.symbol}>{item.symbol.toUpperCase()}</Text>
-      </View>
+        {/* NAME & SYMBOL */}
+        <View style={styles.nameWrapper}>
+          <Text style={styles.name}>{item.name}</Text>
+          <Text style={styles.symbol}>{item.symbol.toUpperCase()}</Text>
+        </View>
 
-      {/* PRICE & CHANGE */}
-      <View style={styles.priceWrapper}>
-        <Text style={styles.priceContainer}>
-          <Text style={styles.price}>${formatNumber(item.current_price)}</Text>
-          <Text style={styles.pair}> / USDT</Text>
-        </Text>
-        <Text
-          style={[
-            styles.change,
-            {
-              color:
-                item.price_change_percentage_24h >= 0 ? "#16a34a" : "#dc2626",
-            }, // green / red
-          ]}
-        >
-          {item.price_change_percentage_24h.toFixed(2)}%
-        </Text>
-      </View>
-    </TouchableOpacity>
+        {/* PRICE & CHANGE */}
+        <View style={styles.priceWrapper}>
+          <Text style={styles.priceContainer}>
+            <Text style={styles.price}>
+              ${formatNumber(item.current_price)}
+            </Text>
+            <Text style={styles.pair}> / USDT</Text>
+          </Text>
+          <Text
+            style={[
+              styles.change,
+              {
+                color:
+                  item.price_change_percentage_24h >= 0 ? "#16a34a" : "#dc2626",
+              }, // green / red
+            ]}
+          >
+            {item.price_change_percentage_24h.toFixed(2)}%
+          </Text>
+        </View>
+      </TouchableOpacity>
+    </Animated.View>
   );
 
   return (

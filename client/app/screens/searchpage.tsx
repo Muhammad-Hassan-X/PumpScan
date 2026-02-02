@@ -3,10 +3,10 @@ import React, { useState } from "react";
 import SearchInput from "@/components/SearchInput";
 import Icon from "@/components/Icons";
 import Colors from "@/constants/colors";
-import { router } from "expo-router";
+import { router , useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import font from "@/constants/fonts";
-import { useRouter } from "expo-router";
+
 
 const SearchScreen = () => {
   const [searchText, setSearchText] = useState("");

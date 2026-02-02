@@ -7,6 +7,7 @@ import Icon from "@/components/Icons";
 import { useRouter } from "expo-router";
 import { useSignup } from "@/hooks/useSignup";
 import { useModal } from "@/context/ModalContext";
+import AnimatedView from "@/components/AnimatedView";
 
 const SignUp = () => {
   const router = useRouter();
@@ -46,34 +47,44 @@ const SignUp = () => {
       keyboardShouldPersistTaps="handled"
     >
       <View style={styles.contentContainer}>
-        <Text style={styles.text}>Sign Up</Text>
-        <Icon name={"Search"} size={300} style={styles.icon} />
+        <AnimatedView direction="down" delay={100}>
+          <Text style={styles.text}>Sign Up</Text>
+        </AnimatedView>
+        <AnimatedView direction="down" delay={200}>
+          <Icon name={"Search"} size={300} style={styles.icon} />
+        </AnimatedView>
 
-        <InputField
-          iconName={"user"}
-          isPassword={false}
-          placeholder="Enter user name"
-          value={name}
-          onChangeText={setName}
-        />
+        <AnimatedView direction="up" delay={300}>
+          <InputField
+            iconName={"user"}
+            isPassword={false}
+            placeholder="Enter user name"
+            value={name}
+            onChangeText={setName}
+          />
+        </AnimatedView>
 
-        <InputField
-          iconName={"envelope"}
-          isPassword={false}
-          placeholder="Enter your Email"
-          value={email}
-          onChangeText={setEmail}
-        />
+        <AnimatedView direction="up" delay={400}>
+          <InputField
+            iconName={"envelope"}
+            isPassword={false}
+            placeholder="Enter your Email"
+            value={email}
+            onChangeText={setEmail}
+          />
+        </AnimatedView>
 
-        <InputField
-          iconName={"lock"}
-          isPassword={true}
-          placeholder="Enter your Password"
-          value={password}
-          onChangeText={setPassword}
-        />
+        <AnimatedView direction="up" delay={500}>
+          <InputField
+            iconName={"lock"}
+            isPassword={true}
+            placeholder="Enter your Password"
+            value={password}
+            onChangeText={setPassword}
+          />
+        </AnimatedView>
 
-        <View>
+        <AnimatedView direction="up" delay={600}>
           <View style={styles.textContainer}>
             <Text style={styles.accountLink}>
               Already have an account?{" "}
@@ -96,7 +107,7 @@ const SignUp = () => {
               {isPending ? "Creating account..." : "Sign Up"}
             </Text>
           </Pressable>
-        </View>
+        </AnimatedView>
       </View>
     </ScrollView>
   );

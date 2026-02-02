@@ -6,34 +6,43 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import Animated, { FadeInDown } from "react-native-reanimated";
 
 import Colors from "@/constants/colors";
 import font from "@/constants/fonts";
 import { NotificationData } from "@/data/token";
 
 const NotificationList = () => {
-  const renderItem = ({ item }: any) => (
-    <TouchableOpacity style={styles.card} activeOpacity={0.8}>
-      {/* ICON */}
-      <View style={styles.iconWrapper}>
-        <Ionicons name="notifications-sharp" size={22} color={Colors.heading} />
-      </View>
+  const renderItem = ({ item, index }: any) => (
+    <Animated.View entering={FadeInDown.delay(index * 100).duration(500)}>
+      <TouchableOpacity style={styles.card} activeOpacity={0.8}>
+        {/* ICON */}
+        <View style={styles.iconWrapper}>
+          <Ionicons
+            name="notifications-sharp"
+            size={22}
+            color={Colors.heading}
+          />
+        </View>
 
-      {/* CONTENT */}
-      <View style={{ flex: 1 }}>
-        <Text style={[styles.title, item.unread && { fontFamily: font.Bold }]}>
-          {item.title}
-        </Text>
+        {/* CONTENT */}
+        <View style={{ flex: 1 }}>
+          <Text
+            style={[styles.title, item.unread && { fontFamily: font.Bold }]}
+          >
+            {item.title}
+          </Text>
 
-        <Text style={styles.message}>{item.message}</Text>
-      </View>
+          <Text style={styles.message}>{item.message}</Text>
+        </View>
 
-      {/* RIGHT SIDE */}
-      <View style={styles.right}>
-        <Text style={styles.time}>{item.time}</Text>
-        {item.unread && <View style={styles.dot} />}
-      </View>
-    </TouchableOpacity>
+        {/* RIGHT SIDE */}
+        <View style={styles.right}>
+          <Text style={styles.time}>{item.time}</Text>
+          {item.unread && <View style={styles.dot} />}
+        </View>
+      </TouchableOpacity>
+    </Animated.View>
   );
 
   return (

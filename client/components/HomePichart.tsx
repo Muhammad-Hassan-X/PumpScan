@@ -2,9 +2,9 @@ import Colors from "@/constants/colors";
 import font from "@/constants/fonts";
 import { ReactElement } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { PieChart } from "react-native-gifted-charts";
-import { BarChart } from "react-native-gifted-charts";
-import { LineChart } from "react-native-gifted-charts";
+import { PieChart , BarChart , LineChart } from "react-native-gifted-charts";
+
+
 
 const HomePichart = () => {
   const pieData = [

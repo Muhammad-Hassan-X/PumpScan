@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from "react";
 import { View, Text, StyleSheet, Image, Animated } from "react-native";
 import * as SplashScreen from "expo-splash-screen";
 import { ICONS } from "@/constants/icons";
-import Loader from "./Loader";
+import { LoaderKitView } from "react-native-loader-kit";
 
 // Keep the native splash visible until we hide it manually
 SplashScreen.preventAutoHideAsync();
@@ -19,11 +19,11 @@ const CustomSplash = ({ onFinish }: { onFinish: () => void }) => {
       useNativeDriver: true,
     }).start();
 
-    // Hide splash after 2.5 seconds and call onFinish
+    // Hide splash after 2 seconds and call onFinish
     const timer = setTimeout(async () => {
       await SplashScreen.hideAsync(); // hide native splash
       onFinish();
-    }, 100);
+    }, 2000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -31,11 +31,16 @@ const CustomSplash = ({ onFinish }: { onFinish: () => void }) => {
   return (
     <View style={styles.container}>
       <Animated.Image
-        source={ICONS.appLogo} 
+        source={ICONS.appLogo}
         style={[styles.logo, { opacity: fadeAnim }]}
         resizeMode="contain"
       />
-      <Loader/>
+      <LoaderKitView
+        style={{ width: 50, height: 50 }}
+        name={"Pacman"}
+        animationSpeedMultiplier={1.0}
+        color={Colors.heading}
+      />
     </View>
   );
 };

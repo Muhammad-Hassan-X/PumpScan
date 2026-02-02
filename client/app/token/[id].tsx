@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity , ScrollView } from "react-native";
 import React from "react";
 import { Ionicons } from "@expo/vector-icons";
 import HeartIcon from "@/components/Hearticon";
@@ -9,7 +9,8 @@ import { PieChart } from "react-native-gifted-charts";
 import { formatNumber } from "@/utils/formateNumber";
 import AddressBadge from "@/components/AddressBadge";
 import SocialsRow from "@/components/SocialsRow";
-import { ScrollView } from "react-native";
+
+import Animated, { FadeInDown } from "react-native-reanimated";
 
 const TokenReport = () => {
   const pieData = [
@@ -183,20 +184,29 @@ const TokenReport = () => {
               </View>
 
               {/* Rows */}
-              <View style={styles.tableRow}>
+              <Animated.View
+                entering={FadeInDown.delay(100).duration(500)}
+                style={styles.tableRow}
+              >
                 <Text style={styles.tableText}>Binance</Text>
                 <Text style={styles.tableText}>BTC / USDT</Text>
-              </View>
+              </Animated.View>
 
-              <View style={styles.tableRow}>
+              <Animated.View
+                entering={FadeInDown.delay(200).duration(500)}
+                style={styles.tableRow}
+              >
                 <Text style={styles.tableText}>Coinbase</Text>
                 <Text style={styles.tableText}>BTC / USD</Text>
-              </View>
+              </Animated.View>
 
-              <View style={styles.tableRow}>
+              <Animated.View
+                entering={FadeInDown.delay(300).duration(500)}
+                style={styles.tableRow}
+              >
                 <Text style={styles.tableText}>Kraken</Text>
                 <Text style={styles.tableText}>BTC / USD</Text>
-              </View>
+              </Animated.View>
             </View>
           </View>
         </View>

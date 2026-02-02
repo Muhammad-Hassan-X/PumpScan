@@ -23,7 +23,6 @@ export default function RootLayout() {
   const { isFirstLaunch, _hasHydrated } = useOnboardingStore();
   const [authChecked, setAuthChecked] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
     const checkAuthAndState = async () => {
@@ -39,23 +38,8 @@ export default function RootLayout() {
     checkAuthAndState();
   }, []);
 
-  if (showSplash) {
-    return <CustomSplash onFinish={() => setShowSplash(false)} />;
-  }
-
   if (!fontsLoaded || !authChecked || !_hasHydrated) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: "#242424",
-        }}
-      >
-        <ActivityIndicator color="#fff" size="large" />
-      </View>
-    );
+    return null; // Keep native splash visible
   }
 
   return (
@@ -64,7 +48,7 @@ export default function RootLayout() {
         <SafeAreaView style={{ flex: 1, backgroundColor: "#242424" }}>
           <StatusBar style="light" backgroundColor="#242424" />
 
-          <Stack screenOptions={{ headerShown: false }}>
+          <Stack screenOptions={{ headerShown: false, animation: "fade" }}>
             <Stack.Screen name="index" />
             <Stack.Screen name="onboarding" />
             <Stack.Screen name="(auth)" />
