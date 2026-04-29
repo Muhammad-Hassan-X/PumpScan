@@ -38,7 +38,7 @@ const Crypto = () => {
           {/* Notification Icon */}
           <TouchableOpacity
             style={styles.iconWrapper}
-            onPress={() => router.push("screens/notification")}
+            onPress={() => router.push("/screens/notification")}
           >
             <Ionicons name="notifications-outline" style={styles.icon} />
 

@@ -18,7 +18,7 @@ export default function Header() {
       </View>
       <View style={styles.iconContainer}>
         {/* Notification Icon */}
-        <TouchableOpacity style={styles.iconWrapper} onPress={() => router.push('screens/notification')}>
+        <TouchableOpacity style={styles.iconWrapper} onPress={() => router.push('/screens/notification')}>
           <Ionicons name="notifications-outline" style={styles.icon} />
 
           {/* Badge */}
