@@ -34,13 +34,13 @@ export default function OnboardingScreen({
       {/* ICON AREA */}
       <Animated.View
         entering={FadeInDown.delay(200).duration(800)}
-        style={styles.iconContainer}
+
       >
         <Icon name={iconName} size={280} color={Colors.primary} />
       </Animated.View>
 
       {/* TEXT AREA */}
-      <View style={styles.textContainer}>
+      <View >
         <Animated.Text
           entering={FadeInRight.delay(400).duration(600)}
           style={styles.title}

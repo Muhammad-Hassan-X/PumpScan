@@ -1,13 +1,16 @@
 import { create } from "zustand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { API_URL } from "@/constants/api";
 
 interface AuthState {
   user: any | null;
   token: string | null;
   isLoading: boolean;
   error: string | null;
-  login: (email: string, pass: string) => Promise<void>;
-  signup: (email: string, pass: string, name: string) => Promise<void>;
+  initialize: () => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (email: string, password: string, username: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -17,50 +20,85 @@ export const useAuthStore = create<AuthState>((set) => ({
   isLoading: false,
   error: null,
 
-  login: async (email, pass) => {
-    set({ isLoading: true, error: null });
+  initialize: async () => {
+    set({ isLoading: true });
     try {
-      // Mock API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      if (email === "error@test.com") {
-        throw new Error("Invalid credentials");
+      const token = await AsyncStorage.getItem("token");
+      const userJson = await AsyncStorage.getItem("user");
+      
+      if (token && userJson) {
+        set({ 
+          token, 
+          user: JSON.parse(userJson),
+          isLoading: false 
+        });
+      } else {
+        set({ isLoading: false });
       }
-
-      const mockToken = "mock-jwt-token-" + Date.now();
-      const mockUser = { id: 1, email, name: "Mock User" };
-
-      await AsyncStorage.setItem("token", mockToken);
-      set({ user: mockUser, token: mockToken, isLoading: false });
     } catch (error) {
-      set({ error: "Login failed", isLoading: false });
-      throw error;
+      console.error("Auth initialization failed:", error);
+      set({ isLoading: false });
     }
   },
 
-  signup: async (email, pass, name) => {
+  login: async (email, password) => {
     set({ isLoading: true, error: null });
     try {
-      // Mock API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const response = await axios.post(`${API_URL}/auth/login`, { email, password });
+      
+      if (response.data.success) {
+        const { token, username } = response.data.data;
+        const user = { email, name: username };
 
-      if (email === "error@test.com") {
-        throw new Error("Invalid details");
+        await AsyncStorage.setItem("token", token);
+        await AsyncStorage.setItem("user", JSON.stringify(user));
+        
+        set({ user, token, isLoading: false });
+      } else {
+        throw new Error(response.data.message || "Login failed");
       }
+    } catch (error: any) {
+      const message = error.response?.data?.message || error.message || "Login failed";
+      set({ error: message, isLoading: false });
+      throw new Error(message);
+    }
+  },
 
-      const mockToken = "mock-jwt-token-" + Date.now();
-      const mockUser = { id: 1, email, name };
+  signup: async (email, password, username) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await axios.post(`${API_URL}/auth/register`, { 
+        email, 
+        password, 
+        username 
+      });
 
-      await AsyncStorage.setItem("token", mockToken);
-      set({ user: mockUser, token: mockToken, isLoading: false });
-    } catch (error) {
-      set({ error: "Signup failed", isLoading: false });
-      throw error;
+      if (response.data.success) {
+        set({ isLoading: false });
+      } else {
+        throw new Error(response.data.message || "Signup failed");
+      }
+    } catch (error: any) {
+      const message = error.response?.data?.message || error.message || "Signup failed";
+      set({ error: message, isLoading: false });
+      throw new Error(message);
     }
   },
 
   logout: async () => {
-    await AsyncStorage.removeItem("token");
-    set({ user: null, token: null });
+    try {
+      const token = useAuthStore.getState().token;
+      await axios.get(`${API_URL}/auth/logout`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+    } catch (error) {
+      console.error("Logout API call failed:", error);
+    } finally {
+      await AsyncStorage.removeItem("token");
+      await AsyncStorage.removeItem("user");
+      set({ user: null, token: null });
+    }
   },
 }));
+
+

@@ -30,12 +30,13 @@ const SignUp = () => {
       { name, email, password },
       {
         onSuccess: () => {
-          console.log("Signup success, redirecting...");
-          router.replace("/(tabs)");
+          console.log("Signup success, redirecting to login...");
+          showModal("Signup success! Please login.", "success");
+          router.replace("/(auth)/login");
         },
-        onError: (err) => {
+        onError: (err: any) => {
           console.error("Signup error:", err);
-          showModal("Signup failed: Please check your details");
+          showModal(err.message || "Signup failed", "error");
         },
       },
     );
@@ -88,7 +89,7 @@ const SignUp = () => {
           <View style={styles.textContainer}>
             <Text style={styles.accountLink}>
               Already have an account?{" "}
-              <Pressable onPress={() => router.push("login")}>
+              <Pressable onPress={() => router.push("/(auth)/login")}>
                 {({ pressed }) => (
                   <Text style={[styles.loginLink, pressed && { opacity: 0.6 }]}>
                     Login

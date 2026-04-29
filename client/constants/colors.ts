@@ -13,8 +13,8 @@ const Colors = {
   white: '#FCFCFC',
   tintColor: '#723FEB',
   blue: '#97E0F7',
-  success: '#28a745', // green
-  error: '#dc3545',   // red
+  success: '#28a745',
+  error: '#dc3545',  
 };
 
-export default Colors;
+export default Colors

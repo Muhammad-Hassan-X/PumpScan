@@ -24,11 +24,11 @@ export default function App() {
         } else if (token) {
           setTargetRoute("/(tabs)");
         } else {
-          setTargetRoute("/(auth)");
+          setTargetRoute("/(auth)/login");
         }
       } catch (e) {
         console.error("Redirection error:", e);
-        setTargetRoute("/(auth)");
+        setTargetRoute("/(auth)/login");
       }
     };
 

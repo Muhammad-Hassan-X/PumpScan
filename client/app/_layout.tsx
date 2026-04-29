@@ -10,6 +10,8 @@ import CustomSplash from "@/components/CustomSplash";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useOnboardingStore } from "@/store/onboardingStore";
 import { ModalProvider } from "@/context/ModalContext";
+import { useAuthStore } from "@/store/authStore";
+
 
 const queryClient = new QueryClient();
 
@@ -21,14 +23,13 @@ export default function RootLayout() {
   });
 
   const { isFirstLaunch, _hasHydrated } = useOnboardingStore();
+  const { initialize, token } = useAuthStore();
   const [authChecked, setAuthChecked] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const checkAuthAndState = async () => {
       try {
-        const token = await AsyncStorage.getItem("token");
-        setIsLoggedIn(!!token);
+        await initialize();
       } catch (e) {
         console.error("Failed to check auth state", e);
       } finally {
@@ -37,6 +38,7 @@ export default function RootLayout() {
     };
     checkAuthAndState();
   }, []);
+
 
   if (!fontsLoaded || !authChecked || !_hasHydrated) {
     return null; // Keep native splash visible

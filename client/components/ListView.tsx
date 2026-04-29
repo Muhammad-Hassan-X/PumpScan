@@ -5,23 +5,63 @@ import {
   FlatList,
   Image,
   TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
 } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useRouter } from "expo-router";
 import Colors from "@/constants/colors";
 import { formatNumber } from "@/utils/formateNumber";
-import TokenData from "@/data/token";
 import MarketCap from "./MarketCap";
+import api from "@/lib/api";
 
 const ListView = () => {
   const router = useRouter();
+  const [tokens, setTokens] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    fetchTrendingTokens();
+  }, []);
+
+  const fetchTrendingTokens = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get("/tokens/trending");
+      if (response.data && Array.isArray(response.data)) {
+        setTokens(response.data);
+      } else if (response.data.success && response.data.data) {
+        const rawData = response.data.data;
+        // Handle both flat array and nested success/data object (compat with old server version)
+        const finalData = Array.isArray(rawData) ? rawData : (rawData?.data || []);
+        setTokens(finalData);
+      }
+    } catch (err) {
+      console.error("Failed to fetch trending tokens:", err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchTrendingTokens();
+  };
 
   const renderItem = ({ item, index }: any) => (
-    <Animated.View entering={FadeInDown.delay(index * 100).duration(500)}>
+    <Animated.View entering={FadeInDown.delay(index * 50).duration(500)}>
       <TouchableOpacity
         style={styles.card}
-        onPress={() => router.push(`/crypto/${item.id}`)}
+        onPress={() =>
+          router.push({
+            pathname: "/token/[id]",
+            params: { id: item.id },
+          })
+        }
       >
         {/* TOKEN IMAGE */}
         <Image source={{ uri: item.image }} style={styles.image} />
@@ -46,62 +86,83 @@ const ListView = () => {
               {
                 color:
                   item.price_change_percentage_24h >= 0 ? "#16a34a" : "#dc2626",
-              }, // green / red
+              },
             ]}
           >
-            {item.price_change_percentage_24h.toFixed(2)}%
+            {item.price_change_percentage_24h?.toFixed(2)}%
           </Text>
         </View>
       </TouchableOpacity>
     </Animated.View>
   );
 
+  if (loading && !refreshing) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color={Colors.active_color} />
+        <Text style={styles.loaderText}>Fetching real-time data...</Text>
+      </View>
+    );
+  }
+
   return (
     <FlatList
-      data={TokenData}
+      data={tokens}
       keyExtractor={(item) => item.id}
       renderItem={renderItem}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{ padding: 10, paddingBottom: 30 }}
       ListHeaderComponent={<MarketCap />}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.active_color} />
+      }
     />
   );
 };
+
 const styles = StyleSheet.create({
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Colors.back_ground_color,
+  },
+  loaderText: {
+    color: Colors.sub_heading,
+    marginTop: 10,
+    fontFamily: "Ubuntu-Medium",
+  },
   card: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: Colors.back_ground_color,
-    paddingVertical: 8, // reduced padding
-    paddingHorizontal: 12,
-    marginBottom: 8, // reduced spacing
-    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    marginBottom: 10,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: "#333",
-    shadowColor: Colors.dark,
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 3, // smaller shadow
   },
   image: {
-    width: 36, // slightly smaller
-    height: 36,
-    marginRight: 10,
+    width: 38,
+    height: 38,
+    marginRight: 12,
+    borderRadius: 19,
   },
   nameWrapper: {
     flex: 1,
   },
   name: {
     color: Colors.heading,
-    fontSize: 14, // smaller font
-    fontWeight: "600",
+    fontSize: 15,
+    fontWeight: "700",
     fontFamily: "Ubuntu-Bold",
   },
   symbol: {
     color: Colors.sub_heading,
-    fontSize: 11, // smaller font
+    fontSize: 12,
     fontFamily: "Ubuntu-Regular",
-    marginTop: 1,
+    marginTop: 2,
   },
   priceWrapper: {
     alignItems: "flex-end",
@@ -112,8 +173,8 @@ const styles = StyleSheet.create({
   },
   price: {
     color: Colors.heading,
-    fontSize: 18, // reduced font
-    fontWeight: "600",
+    fontSize: 17,
+    fontWeight: "700",
     fontFamily: "Ubuntu-Bold",
   },
   pair: {
@@ -123,8 +184,9 @@ const styles = StyleSheet.create({
     fontFamily: "Ubuntu-Regular",
   },
   change: {
-    fontSize: 11,
+    fontSize: 12,
     marginTop: 2,
+    fontFamily: "Ubuntu-Medium",
   },
 });
 

@@ -1,19 +1,25 @@
 const { getDefaultConfig } = require("expo/metro-config");
 const { withNativeWind } = require("nativewind/metro");
+const path = require("path");
 
 const config = getDefaultConfig(__dirname);
 
-// 🔹 SVG Transformer
-config.transformer.babelTransformerPath =
-  require.resolve("react-native-svg-transformer");
+const { transformer, resolver } = config;
 
-// 🔹 Fix asset/source extensions
-config.resolver.assetExts = config.resolver.assetExts.filter(
-  (ext) => ext !== "svg"
-);
-config.resolver.sourceExts.push("svg");
+config.transformer = {
+  ...transformer,
+  babelTransformerPath: require.resolve("react-native-svg-transformer/expo"),
+};
 
-// 🔹 Wrap with NativeWind
-module.exports = withNativeWind(config, {
-  input: "./app/global.css",
-});
+config.resolver = {
+  ...resolver,
+  extraNodeModules: {
+    ...(resolver.extraNodeModules || {}),
+    "react-native-worklets": path.resolve(__dirname, "compat/react-native-worklets"),
+  },
+  assetExts: resolver.assetExts.filter((ext) => ext !== "svg"),
+  sourceExts: [...resolver.sourceExts, "svg"],
+};
+
+module.exports = withNativeWind(config, { input: "./app/global.css" });
+

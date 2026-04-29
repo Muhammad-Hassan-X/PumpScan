@@ -31,9 +31,9 @@ const Login = () => {
           console.log("Login success, redirecting...");
           router.replace("/(tabs)");
         },
-        onError: (err) => {
+        onError: (err: any) => {
           console.error("Login error:", err);
-          showModal("Login failed: Invalid credentials");
+          showModal(err.message || "Login failed", "error");
         },
       },
     );
@@ -73,7 +73,7 @@ const Login = () => {
           <View style={styles.textContainer}>
             <Text style={styles.accountLink}>
               Dont have an account?{" "}
-              <Pressable onPress={() => router.push("signUp")}>
+              <Pressable onPress={() => router.push("/(auth)/signUp")}>
                 {({ pressed }) => (
                   <Text style={[styles.loginLink, pressed && { opacity: 0.6 }]}>
                     SignUp

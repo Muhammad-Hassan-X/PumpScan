@@ -3,4 +3,12 @@ import profileRoute from "./profile.route.js";
 import historyRoute from "./history.route.js";
 import watchListRoute from "./watchList.route.js";
 import searchRoute from "./search.route.js";
-export { authRoute, profileRoute, historyRoute, watchListRoute, searchRoute };
+import alertsRoute from "./alerts.route.js";
+export {
+  authRoute,
+  profileRoute,
+  historyRoute,
+  watchListRoute,
+  searchRoute,
+  alertsRoute,
+};

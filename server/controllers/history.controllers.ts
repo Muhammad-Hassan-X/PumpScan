@@ -1,7 +1,8 @@
+import { Request, Response, NextFunction } from "express";
 import { supabase } from "../config/supabase.config.js";
 import { StatusCodes } from "http-status-codes";
-export const deleteHistory = async (req, res) => {
-    const { user } = req.userId;
+export const deleteHistory = async (req: Request, res: Response) => {
+    const user = req.userId;
     if (!user) {
         return res.sendResponse(StatusCodes.UNAUTHORIZED, false, "User ID is required", null, "User ID is required");
     }
@@ -16,7 +17,7 @@ export const deleteHistory = async (req, res) => {
     return res.sendResponse(StatusCodes.OK, true, "History deleted successfully", historyData, null);
 };
 
-export const getHistory = async (req, res) => {
+export const getHistory = async (req: Request, res: Response) => {
   const user_id = req.userId;
   console.log(user_id);
   

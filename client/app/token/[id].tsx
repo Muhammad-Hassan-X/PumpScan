@@ -1,214 +1,339 @@
-import { View, Text, StyleSheet, TouchableOpacity , ScrollView } from "react-native";
-import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
+import React, { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import HeartIcon from "@/components/Hearticon";
 import Colors from "@/constants/colors";
 import font from "@/constants/fonts";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { PieChart } from "react-native-gifted-charts";
 import { formatNumber } from "@/utils/formateNumber";
 import AddressBadge from "@/components/AddressBadge";
+import Animated, { FadeInDown } from "react-native-reanimated";
+import { useAuthStore } from "@/store/authStore";
+import api from "@/lib/api";
+import HistoryChart from "@/components/HistoryChart";
 import SocialsRow from "@/components/SocialsRow";
 
-import Animated, { FadeInDown } from "react-native-reanimated";
 
 const TokenReport = () => {
-  const pieData = [
-    {
-      value: 47,
-      color: "#009FFF",
-      gradientCenterColor: "#006DFF",
-      focused: true,
-    },
-    { value: 40, color: "#93FCF8", gradientCenterColor: "#3BE9DE" },
-    { value: 16, color: "#BDB2FA", gradientCenterColor: "#8F80F3" },
-    { value: 3, color: "#FFA5BA", gradientCenterColor: "#FF7F97" },
-  ];
+  const { id } = useLocalSearchParams();
+  const tokenHeader = useAuthStore((state) => state.token);
 
-  const renderDot = (color: string) => {
+  const [loading, setLoading] = useState(true);
+  const [tokenData, setTokenData] = useState<any>(null);
+  const [isWatched, setIsWatched] = useState(false);
+
+  useEffect(() => {
+    if (id) {
+      fetchTokenData();
+      if (tokenHeader) {
+        checkWatchlistStatus();
+      }
+    }
+  }, [id, tokenHeader]);
+
+
+  const fetchTokenData = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get(`/tokens?q=${encodeURIComponent(id as string)}`);
+      if (response.data.success && response.data.data) {
+        setTokenData(response.data.data);
+      }
+    } catch (error: any) {
+      console.error("Token Fetch Axios Error:", error.message);
+      if (error.response?.data?.message) {
+        console.error("Backend Error:", error.response.data.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  const checkWatchlistStatus = async () => {
+    try {
+      const response = await api.get("/watch-list");
+      if (response.data.success) {
+        const found = response.data.data.some((item: any) => 
+          item.token_id === id || (item.tokens && item.tokens.address === id)
+        );
+        setIsWatched(found);
+      }
+    } catch (e: any) {
+      // 401 = session expired / not logged in — expected, handle silently
+      if (e?.response?.status === 401) {
+        setIsWatched(false);
+      } else {
+        console.warn("Failed to check watchlist status:", e?.message);
+      }
+    }
+  };
+
+
+  const toggleWatchlist = async () => {
+    if (!tokenHeader) {
+      Alert.alert("Sign In Needed", "You must be logged in to save tokens to your watchlist.");
+      return;
+    }
+    if (!tokenData?.token?.id) return;
+
+    try {
+      if (isWatched) {
+        await api.delete(`/watch-list?id=${tokenData.token.id}`);
+        setIsWatched(false);
+        Alert.alert("Success", "Removed from watchlist");
+      } else {
+        await api.post("/watch-list", { token_id: tokenData.token.id });
+        setIsWatched(true);
+        Alert.alert("Success", "Added to watchlist!");
+      }
+    } catch (e: any) {
+      if (e?.response?.status === 401) {
+        Alert.alert("Session Expired", "Please sign in again to use your watchlist.");
+      } else {
+        console.warn("Toggle watchlist failed:", e?.message);
+        Alert.alert("Error", "Action failed. Please try again.");
+      }
+    }
+  };
+
+
+  if (loading || !tokenData) {
     return (
       <View
-        style={{
-          height: 10,
-          width: 10,
-          borderRadius: 5,
-          backgroundColor: color,
-          marginRight: 10,
-        }}
-      />
+        style={[
+          styles.wrapper,
+          { justifyContent: "center", alignItems: "center" },
+        ]}
+      >
+        <ActivityIndicator size="large" color={Colors.active_color} />
+      </View>
     );
-  };
+  }
 
-  const renderLegendComponent = () => {
-    return (
-      <>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "center",
-            marginBottom: 10,
-          }}
-        >
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              width: 120,
-              marginRight: 20,
-            }}
-          >
-            {renderDot("#006DFF")}
-            <Text style={{ color: "white" }}>Excellent: 47%</Text>
-          </View>
-          <View
-            style={{ flexDirection: "row", alignItems: "center", width: 120 }}
-          >
-            {renderDot("#8F80F3")}
-            <Text style={{ color: "white" }}>Okay: 16%</Text>
-          </View>
-        </View>
-        <View style={{ flexDirection: "row", justifyContent: "center" }}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              width: 120,
-              marginRight: 20,
-            }}
-          >
-            {renderDot("#3BE9DE")}
-            <Text style={{ color: "white" }}>Good: 40%</Text>
-          </View>
-          <View
-            style={{ flexDirection: "row", alignItems: "center", width: 120 }}
-          >
-            {renderDot("#FF7F97")}
-            <Text style={{ color: "white" }}>Poor: 3%</Text>
-          </View>
-        </View>
-      </>
-    );
-  };
+  const { token, safetyReport, coinGecko } = tokenData;
+  const score = safetyReport?.score || 0;
+
+  const pieData = [
+    {
+      value: score,
+      color: score >= 80 ? "#3BE9DE" : score >= 60 ? "#8F80F3" : "#FF7F97",
+      gradientCenterColor:
+        score >= 80 ? "#006DFF" : score >= 60 ? "#BDB2FA" : "#FFA5BA",
+      focused: true,
+    },
+    { value: 100 - score, color: "#1c1c1e" },
+  ];
 
   return (
     <View style={styles.wrapper}>
-      <View style={styles.header}>
+      <Animated.View entering={FadeInDown.delay(100).duration(500)} style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back-sharp" size={28} color={Colors.heading} />
         </TouchableOpacity>
+        <Text style={styles.text}>{token.name} Report</Text>
+      </Animated.View>
 
-        <Text style={styles.text}>Token Report</Text>
-      </View>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 20 }}
+        contentContainerStyle={{ paddingBottom: 40 }}
       >
         <View style={styles.pageWrapper}>
-          {/* HEADER */}
+          
+          {/* Top Section: Safety Score & Watchlist */}
+          <Animated.View entering={FadeInDown.delay(200).duration(500)} style={styles.container}>
+            <View>
+              <Text style={styles.headingTxt}>Safety Score</Text>
+              <Text
+                style={[
+                  styles.marketCapSubTxt,
+                  {
+                    marginTop: 10,
+                    fontSize: 20,
+                    color:
+                      score >= 80
+                        ? "#3BE9DE"
+                        : score >= 60
+                          ? "#8F80F3"
+                          : "#FF7F97",
+                  },
+                ]}
+              >
+                {safetyReport?.label || "Unknown"}
+              </Text>
+            </View>
+            <TouchableOpacity onPress={toggleWatchlist} style={styles.iconContainer}>
+              <HeartIcon size={30} fill={isWatched} />
+            </TouchableOpacity>
+          </Animated.View>
 
-          {/* CONTENT */}
-          <View style={styles.container}>
-            <Text style={styles.headingTxt}>Total Score</Text>
+          <Animated.View entering={FadeInDown.delay(300).duration(500)}>
+            <HistoryChart data={coinGecko?.priceHistory || []} />
+          </Animated.View>
 
-            <HeartIcon size={30} />
-          </View>
-          <View style={{ padding: 20, alignItems: "center" }}>
+          <Animated.View entering={FadeInDown.delay(400).duration(500)} style={styles.chartContainer}>
             <PieChart
               data={pieData}
               donut
               showGradient
               sectionAutoFocus
-              radius={90}
-              innerRadius={60}
+              radius={85}
+              innerRadius={58}
               innerCircleColor={Colors.back_ground_color}
-              centerLabelComponent={() => {
-                return (
-                  <View
-                    style={{ justifyContent: "center", alignItems: "center" }}
-                  >
-                    <Text style={styles.pieChartTxt}>47%</Text>
-                  </View>
-                );
-              }}
+              centerLabelComponent={() => (
+                <View style={{ justifyContent: "center", alignItems: "center" }}>
+                  <Text style={styles.pieChartTxt}>{score}/100</Text>
+                </View>
+              )}
             />
-            {renderLegendComponent()}
-          </View>
-          {/* Market Cap Card */}
-          <View style={styles.card}>
-            <Text style={styles.marketCapTxt}>Market Cap</Text>
-            <View>
-              <Text style={styles.marketCapSubTxt}>
-                ${formatNumber(100000000)}
-              </Text>
-            </View>
-          </View>
-          {/* Detail's of coin  */}
-          <View style={styles.deaitlsContainer}>
-            <View style={styles.deaitlsWapper}>
-              <Text style={styles.marketCapTxt}>Volume (24h)</Text>
-              <Text style={styles.marketCapSubTxt}>
-                ${formatNumber(100000000)}
-              </Text>
-            </View>
-            <View style={styles.deaitlsWapper}>
-              <Text style={styles.marketCapTxt}>Mkt cap (24h)</Text>
-              <Text style={styles.marketCapSubTxt}>48%</Text>
-            </View>
-          </View>
-          {/* address section  */}
-          <View style={styles.Container}>
-            <Text style={styles.soicalText}>Address</Text>
-            <AddressBadge
-              address="FvwEAh...CgxN5Z"
-              image={
-                "https://coin-images.coingecko.com/coins/images/1/large/bitcoin.png?1696501400"
-              }
-            />
-          </View>
-          {/* social section  */}
-          <View style={styles.Container}>
-            <Text style={styles.soicalText}>Social</Text>
-            <SocialsRow />
-          </View>
-          {/* Exchange listing */}
-          <View style={{ marginTop: 10 }}>
-            <Text style={styles.soicalText}>Listed Exchanges</Text>
+          </Animated.View>
 
+          <Animated.View entering={FadeInDown.delay(500).duration(500)} style={styles.reportCard}>
+            <Text style={styles.headingTxt}>Quality Breakdown</Text>
+            
+            <View style={styles.reportRow}>
+              <View style={[styles.iconBox, { backgroundColor: "#8F80F320" }]}>
+                <Ionicons name="shield-checkmark" size={18} color="#8F80F3" />
+              </View>
+              <Text style={styles.reportLabel}>Security:</Text>
+              <Text style={styles.reportValue}>{safetyReport.report.security?.reason || "Safe"} ({safetyReport.report.security?.score}/30)</Text>
+            </View>
+
+            <View style={styles.reportRow}>
+              <View style={[styles.iconBox, { backgroundColor: "#3BE9DE20" }]}>
+                <Ionicons name="water" size={18} color="#3BE9DE" />
+              </View>
+              <Text style={styles.reportLabel}>Liquidity:</Text>
+              <Text style={styles.reportValue}>Checked ({safetyReport.report.liquidity?.score}/20)</Text>
+            </View>
+
+            <View style={styles.reportRow}>
+              <View style={[styles.iconBox, { backgroundColor: "#FFD70020" }]}>
+                <Ionicons name="list" size={18} color="#FFD700" />
+              </View>
+              <Text style={styles.reportLabel}>Listings:</Text>
+              <Text style={styles.reportValue}>{coinGecko?.exchanges?.length || 0} Exchanges ({safetyReport.report.exchanges?.score}/15)</Text>
+            </View>
+
+            <View style={styles.reportRow}>
+              <View style={[styles.iconBox, { backgroundColor: "#FF7F9720" }]}>
+                <Ionicons name="time" size={18} color="#FF7F97" />
+              </View>
+              <Text style={styles.reportLabel}>Maturity:</Text>
+              <Text style={styles.reportValue}>{safetyReport.report.ageAndVolatility?.isNew ? "New Pair" : "Established"} ({safetyReport.report.ageAndVolatility?.score}/20)</Text>
+            </View>
+          </Animated.View>
+
+          <Animated.View entering={FadeInDown.delay(600).duration(500)} style={styles.card}>
+            <View style={styles.cardHeader}>
+              <Ionicons name="globe-outline" size={20} color={Colors.sub_heading} />
+              <Text style={styles.marketCapTxt}>Market Cap</Text>
+            </View>
+            <Text style={styles.marketCapSubTxt}>
+              ${token.marketCapUsd ? formatNumber(token.marketCapUsd) : "N/A"}
+            </Text>
+          </Animated.View>
+
+          <Animated.View entering={FadeInDown.delay(700).duration(500)} style={styles.deaitlsContainer}>
+            <View style={styles.deaitlsWapper}>
+              <View style={styles.cardHeader}>
+                <Ionicons name="bar-chart-outline" size={18} color={Colors.sub_heading} />
+                <Text style={styles.marketCapTxt}>Volume (24h)</Text>
+              </View>
+              <Text style={styles.marketCapSubTxt}>
+                ${token.volume24h ? formatNumber(token.volume24h) : "N/A"}
+              </Text>
+            </View>
+            <View style={styles.deaitlsWapper}>
+              <View style={styles.cardHeader}>
+                <Ionicons name="pricetag-outline" size={18} color={Colors.sub_heading} />
+                <Text style={styles.marketCapTxt}>Price</Text>
+              </View>
+              <Text style={styles.marketCapSubTxt}>
+                ${token.priceUsd ? Number(token.priceUsd).toFixed(6) : "N/A"}
+              </Text>
+            </View>
+          </Animated.View>
+
+          <Animated.View entering={FadeInDown.delay(800).duration(500)} style={styles.deaitlsContainer}>
+            <View style={styles.deaitlsWapper}>
+              <View style={styles.cardHeader}>
+                <Ionicons name="water-outline" size={18} color={Colors.sub_heading} />
+                <Text style={styles.marketCapTxt}>Liquidity</Text>
+              </View>
+              <Text style={styles.marketCapSubTxt}>
+                ${token.liquidityUsd ? formatNumber(token.liquidityUsd) : "N/A"}
+              </Text>
+            </View>
+            <View style={styles.deaitlsWapper}>
+              <View style={styles.cardHeader}>
+                <Ionicons name={token.priceChange24h > 0 ? "trending-up-outline" : "trending-down-outline"} size={18} color={token.priceChange24h > 0 ? "#3BE9DE" : "#FF7F97"} />
+                <Text style={styles.marketCapTxt}>24h Change</Text>
+              </View>
+              <Text
+                style={[
+                  styles.marketCapSubTxt,
+                  { color: token.priceChange24h > 0 ? "#3BE9DE" : "#FF7F97" },
+                ]}
+              >
+                {token.priceChange24h
+                  ? (token.priceChange24h > 0 ? "+" : "") +
+                    token.priceChange24h.toFixed(2) +
+                    "%"
+                  : "N/A"}
+              </Text>
+            </View>
+          </Animated.View>
+
+          <Animated.View entering={FadeInDown.delay(900).duration(500)} style={styles.Container}>
+            <Text style={styles.soicalText}>Token Linkage</Text>
+            <SocialsRow socials={coinGecko?.socials} websites={coinGecko?.websites} />
+          </Animated.View>
+
+          <Animated.View entering={FadeInDown.delay(1000).duration(500)} style={styles.Container}>
+            <Text style={styles.soicalText}>Address</Text>
+            {token.address && (
+              <AddressBadge
+                address={
+                  token.address.slice(0, 8) + "..." + token.address.slice(-8)
+                }
+                image={token.image || "https://cryptologos.cc/logos/bitcoin-btc-logo.png"}
+              />
+            )}
+          </Animated.View>
+
+          <Animated.View entering={FadeInDown.delay(1100).duration(500)} style={{ marginTop: 25 }}>
+            <Text style={styles.soicalText}>Listed Exchanges</Text>
             <View style={styles.table}>
-              {/* Header */}
               <View style={[styles.tableRow, styles.tableHeader]}>
-                <Text style={[styles.tableText, styles.headerText]}>
-                  Exchange
-                </Text>
+                <Text style={[styles.tableText, styles.headerText]}>Exchange</Text>
                 <Text style={[styles.tableText, styles.headerText]}>Pair</Text>
               </View>
-
-              {/* Rows */}
-              <Animated.View
-                entering={FadeInDown.delay(100).duration(500)}
-                style={styles.tableRow}
-              >
-                <Text style={styles.tableText}>Binance</Text>
-                <Text style={styles.tableText}>BTC / USDT</Text>
-              </Animated.View>
-
-              <Animated.View
-                entering={FadeInDown.delay(200).duration(500)}
-                style={styles.tableRow}
-              >
-                <Text style={styles.tableText}>Coinbase</Text>
-                <Text style={styles.tableText}>BTC / USD</Text>
-              </Animated.View>
-
-              <Animated.View
-                entering={FadeInDown.delay(300).duration(500)}
-                style={styles.tableRow}
-              >
-                <Text style={styles.tableText}>Kraken</Text>
-                <Text style={styles.tableText}>BTC / USD</Text>
-              </Animated.View>
+              {coinGecko?.exchanges?.map((ex: any, idx: number) => (
+                <View
+                  key={idx}
+                  style={styles.tableRow}
+                >
+                  <Text style={styles.tableText}>{ex.exchange}</Text>
+                  <Text style={styles.tableText}>{ex.pair}</Text>
+                </View>
+              ))}
+              {(!coinGecko?.exchanges || coinGecko.exchanges.length === 0) && (
+                <View style={styles.tableRow}>
+                  <Text style={styles.tableText}>No major exchanges found</Text>
+                </View>
+              )}
             </View>
-          </View>
+          </Animated.View>
         </View>
       </ScrollView>
     </View>
@@ -217,87 +342,107 @@ const TokenReport = () => {
 
 const styles = StyleSheet.create({
   table: {
-    marginTop: 10,
+    marginTop: 15,
     borderWidth: 1,
-    borderColor: Colors.sub_heading,
-    borderRadius: 10,
+    borderColor: "#2A2A2E",
+    borderRadius: 14,
     overflow: "hidden",
+    backgroundColor: "#161618",
   },
-
   tableRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: 12,
-    paddingHorizontal: 14,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.sub_heading,
+    borderBottomColor: "#2A2A2E",
   },
-
   tableHeader: {
-    backgroundColor: "#1c1c1e",
+    backgroundColor: "#1C1C1E",
   },
-
   tableText: {
     color: Colors.heading,
     fontSize: 14,
     fontFamily: font.Medium,
   },
-
   headerText: {
     fontFamily: font.Bold,
     fontSize: 13,
     color: Colors.sub_heading,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
-
   Container: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 5,
+    marginTop: 25,
+    gap: 12,
   },
   soicalText: {
     color: Colors.heading,
     fontSize: 20,
     fontFamily: font.Bold,
+    marginBottom: 4,
   },
   deaitlsContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
+    marginTop: 12,
+    gap: 12,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 8,
   },
   deaitlsWapper: {
+    backgroundColor: "#161618",
     borderWidth: 1,
-    borderColor: Colors.sub_heading,
-    padding: 20,
-    borderRadius: 10,
-    width: "48%",
+    borderColor: "#2A2A2E",
+    padding: 18,
+    borderRadius: 16,
+    flex: 1,
     justifyContent: "center",
-    alignItems: "center",
-    marginTop: 20,
+    alignItems: "flex-start",
   },
   marketCapTxt: {
     color: Colors.sub_heading,
-    fontSize: 14,
+    fontSize: 13,
     fontFamily: font.Medium,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   marketCapSubTxt: {
     color: Colors.heading,
-    fontSize: 20,
+    fontSize: 19,
     fontFamily: font.Bold,
-    marginTop: 10,
   },
   card: {
+    backgroundColor: "#161618",
     borderWidth: 1,
-    borderColor: Colors.sub_heading,
+    borderColor: "#2A2A2E",
     padding: 20,
-    borderRadius: 10,
+    borderRadius: 16,
     justifyContent: "center",
+    alignItems: "flex-start",
+    marginTop: 16,
+  },
+  chartContainer: {
+    paddingVertical: 30,
     alignItems: "center",
+    backgroundColor: "#161618",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#2A2A2E",
     marginTop: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 5,
   },
   pieChartTxt: {
-    fontSize: 22,
+    fontSize: 24,
     color: Colors.heading,
     fontFamily: font.Bold,
   },
@@ -306,34 +451,78 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.back_ground_color,
   },
-
   pageWrapper: {
     flex: 1,
   },
-
   header: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 20,
+    gap: 16,
     marginBottom: 20,
+    marginTop: 10,
   },
-
   text: {
     color: Colors.heading,
-    fontSize: 28,
+    fontSize: 22,
     fontFamily: font.Bold,
   },
-
   container: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    backgroundColor: "#161618",
+    padding: 20,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#2A2A2E",
+    marginBottom: 20,
   },
-
+  iconContainer: {
+    backgroundColor: "#1C1C1E",
+    padding: 12,
+    borderRadius: 50,
+    borderWidth: 1,
+    borderColor: "#2A2A2E",
+  },
   headingTxt: {
     color: Colors.heading,
-    fontSize: 20,
+    fontSize: 18,
     fontFamily: font.Bold,
+    marginBottom: 6,
+  },
+  reportCard: {
+    backgroundColor: "#161618",
+    borderRadius: 16,
+    padding: 20,
+    marginTop: 20,
+    borderWidth: 1,
+    borderColor: "#2A2A2E",
+  },
+  reportRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 14,
+  },
+  iconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  reportLabel: {
+    color: Colors.heading,
+    fontFamily: font.Bold,
+    fontSize: 15,
+    width: 80,
+  },
+  reportValue: {
+    color: Colors.sub_heading,
+    fontFamily: font.Medium,
+    fontSize: 14,
+    flex: 1,
+    textAlign: "right",
   },
 });
 

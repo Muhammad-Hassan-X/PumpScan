@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { getWatchList, addWatchList, deleteWatchList } from "../controllers/index.js";
 const router = Router();
-router.get("/:id", getWatchList);
-router.post("/:id", addWatchList);
-router.delete("/:id", deleteWatchList);
+router.get("/", getWatchList);
+router.post("/", addWatchList);
+router.delete("/", deleteWatchList);
+
 export default router;

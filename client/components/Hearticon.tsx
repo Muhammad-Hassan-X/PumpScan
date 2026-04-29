@@ -1,31 +1,39 @@
-import React, { useState } from "react";
+import React from "react";
 import { TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 interface HeartIconProps {
-  initialLiked?: boolean;
+  liked?: boolean;
+  fill?: boolean; // Support the prop name used in [id].tsx
   size?: number;
+  onPress?: () => void;
 }
 
 const HeartIcon: React.FC<HeartIconProps> = ({
-  initialLiked = false,
+  liked,
+  fill,
   size = 24,
+  onPress,
 }) => {
-  const [liked, setLiked] = useState(initialLiked);
+  const isLiked = liked ?? fill ?? false;
 
-  const toggleLike = () => {
-    setLiked(prev => !prev);
-  };
-
-  return (
-    <TouchableOpacity onPress={toggleLike} activeOpacity={0.7}>
-      <Ionicons
-        name={liked ? "heart" : "heart-outline"}
-        size={size}
-        color={liked ? "red" : "#fff"}
-      />
-    </TouchableOpacity>
+  const content = (
+    <Ionicons
+      name={isLiked ? "heart" : "heart-outline"}
+      size={size}
+      color={isLiked ? "red" : "#fff"}
+    />
   );
+
+  if (onPress) {
+    return (
+      <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
+        {content}
+      </TouchableOpacity>
+    );
+  }
+
+  return content;
 };
 
 export default HeartIcon;

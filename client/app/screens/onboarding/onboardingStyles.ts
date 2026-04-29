@@ -37,7 +37,7 @@ const OnboardingStyles = StyleSheet.create({
     backgroundColor: Colors.back_ground_color,
     justifyContent: "space-between", // push content to top and buttons to bottom
     alignItems: "center",
-    paddingVertical: 20,
+    // paddingVertical: 20,
   },
   content: {
     alignItems: "center",

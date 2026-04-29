@@ -1,6 +1,7 @@
+import { Request, Response, NextFunction } from "express";
 import { supabase } from "../config/supabase.config.js";
 import { StatusCodes } from "http-status-codes";
-export const verifyAuth = async (req, res, next) => {
+export const verifyAuth = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
         return res.sendResponse(StatusCodes.UNAUTHORIZED, false, "Missing or invalid authorization header", null, "Unauthorized");

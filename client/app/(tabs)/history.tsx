@@ -5,127 +5,186 @@ import {
   FlatList,
   Image,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import Colors from "@/constants/colors";
 import font from "@/constants/fonts";
+import { useAuthStore } from "@/store/authStore";
+import api from "@/lib/api";
+import { useRouter } from "expo-router";
 
-// Mock search history data
-const searchHistory = [
-  {
-    id: "1",
-    query: "Bitcoin",
-    subtitle: "Last searched 2 min ago",
-    image: "https://cryptologos.cc/logos/bitcoin-btc-logo.png?v=023",
-  },
-  {
-    id: "2",
-    query: "Ethereum",
-    subtitle: "Last searched 1 hr ago",
-    image: "https://cryptologos.cc/logos/ethereum-eth-logo.png?v=023",
-  },
-  {
-    id: "3",
-    query: "Solana",
-    subtitle: "Last searched yesterday",
-    image: "https://cryptologos.cc/logos/solana-sol-logo.png?v=023",
-  },
-  {
-    id: "4",
-    query: "Cardano",
-    subtitle: "Last searched 2 days ago",
-    image: "https://cryptologos.cc/logos/cardano-ada-logo.png?v=023",
-  },
-];
+const WatchlistScreen = () => {
+  const [watchlist, setWatchlist] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-const HistoryScreen = () => {
-  const renderItem = ({ item, index }: any) => (
-    <Animated.View entering={FadeInDown.delay(index * 100).duration(500)}>
-      <TouchableOpacity style={styles.card} activeOpacity={0.7}>
-        {/* IMAGE */}
-        <Image source={{ uri: item.image }} style={styles.image} />
+  useEffect(() => {
+    fetchWatchlist();
+  }, []);
 
-        {/* TEXT */}
-        <View style={styles.textWrapper}>
-          <Text style={styles.query}>{item.query}</Text>
-          <Text style={styles.subtitle}>{item.subtitle}</Text>
-        </View>
+  const fetchWatchlist = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get("/watch-list");
+      if (response.data.success) {
+        setWatchlist(response.data.data || []);
+      }
+    } catch (e: any) {
+      if (e?.response?.status === 401) {
+        setWatchlist([]);
+      } else {
+        console.warn("Failed to fetch watchlist:", e?.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        {/* RIGHT ARROW */}
-        <Text style={styles.arrow}>›</Text>
-      </TouchableOpacity>
-    </Animated.View>
-  );
+
+  const renderItem = ({ item, index }: any) => {
+    const tokenInfo = item.tokens; // ⭐ Map from the join
+    const riskColor = tokenInfo?.risk_score >= 80 ? "#3BE9DE" : tokenInfo?.risk_score >= 60 ? "#8F80F3" : "#FF7F97";
+
+    return (
+      <Animated.View entering={FadeInDown.delay(index * 100).duration(500)}>
+        <TouchableOpacity
+          style={styles.card}
+          activeOpacity={0.7}
+          onPress={() => router.push(`/token/${item.token_address}`)}
+        >
+          <Image
+            source={{ uri: tokenInfo?.image || "https://cryptologos.cc/logos/bitcoin-btc-logo.png" }}
+            style={styles.image}
+          />
+          <View style={styles.textWrapper}>
+            <Text style={styles.name}>{tokenInfo?.name || "Unknown Token"}</Text>
+            <Text style={styles.symbol}>{tokenInfo?.symbol?.toUpperCase() || "???"}</Text>
+          </View>
+
+          <View style={styles.scoreContainer}>
+             <Text style={styles.scoreLabel}>Safety</Text>
+             <Text style={[styles.scoreValue, { color: riskColor }]}>{tokenInfo?.risk_score || "0"}%</Text>
+          </View>
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  };
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <Text style={styles.header}>Search History</Text>
-
-      {/* History List */}
-      <FlatList
-        data={searchHistory}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 20 }}
-      />
+      <Text style={styles.header}>My Watchlist</Text>
+      {loading ? (
+        <View style={styles.stateContainer}>
+            <ActivityIndicator size="large" color={Colors.active_color} />
+        </View>
+      ) : watchlist.length === 0 ? (
+        <View style={styles.stateContainer}>
+            <Text style={styles.emptyText}>Your watchlist is empty.</Text>
+            <TouchableOpacity style={styles.searchBtn} onPress={() => router.push("/screens/searchpage")}>
+                <Text style={styles.searchBtnText}>Explore Tokens</Text>
+            </TouchableOpacity>
+        </View>
+      ) : (
+        <FlatList
+          data={watchlist}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 20 }}
+          onRefresh={fetchWatchlist}
+          refreshing={loading}
+        />
+      )}
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.back_ground_color,
     padding: 20,
+    paddingTop: 50,
   },
   header: {
-    fontSize: 22,
+    fontSize: 28,
     fontFamily: font.Bold,
     color: Colors.heading,
     marginBottom: 20,
   },
+  stateContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: -50,
+  },
+  emptyText: {
+    color: Colors.sub_heading,
+    fontFamily: font.Medium,
+    fontSize: 16,
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  searchBtn: {
+    backgroundColor: Colors.active_color,
+    paddingHorizontal: 25,
+    paddingVertical: 12,
+    borderRadius: 25,
+  },
+  searchBtnText: {
+    color: "#000",
+    fontFamily: font.Bold,
+    fontSize: 15,
+  },
   card: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#1f1f1f",
-    paddingVertical: 10,
+    backgroundColor: "#1c1c1e",
+    paddingVertical: 12,
     paddingHorizontal: 15,
     borderRadius: 12,
-    marginBottom: 10,
+    marginBottom: 12,
     borderWidth: 1,
     borderColor: "#333",
-    shadowColor: Colors.dark,
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 3,
   },
   image: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 12,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    marginRight: 15,
   },
   textWrapper: {
     flex: 1,
   },
-  query: {
+  name: {
     fontSize: 16,
     fontFamily: font.Bold,
     color: Colors.heading,
   },
-  subtitle: {
+  symbol: {
     fontSize: 12,
     fontFamily: font.Regular,
     color: Colors.sub_heading,
     marginTop: 2,
   },
-  arrow: {
-    fontSize: 20,
+  scoreContainer: {
+    alignItems: "center",
+    backgroundColor: "#2c2c2e",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  scoreLabel: {
+    fontSize: 10,
     color: Colors.sub_heading,
-    marginLeft: 10,
+    fontFamily: font.Medium,
+  },
+  scoreValue: {
+    fontSize: 14,
+    fontFamily: font.Bold,
   },
 });
 
-export default HistoryScreen;
+export default WatchlistScreen;

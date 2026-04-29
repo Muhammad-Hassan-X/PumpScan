@@ -1,0 +1,41 @@
+# Ignore testing and logging outputs
+*.log
+*.txt
+*.xml
+*.png
+*.jpg
+*.jpeg
+*.cmd
+
+# Specific files generated from debugging
+Dclaude-codeclaude.cmd
+client/adb_log.txt
+client/build_log.txt
+client/bundle_check.log
+client/bundle_error.log
+client/bundle_error.txt
+client/bundle_error_v2.txt
+client/bundle_output.txt
+client/bundle_result.txt
+client/bundle.js
+client/bundle2.js
+client/logcat.txt
+client/screen.png
+client/screen2.png
+client/screen3.png
+client/screen4.png
+client/window_dump.xml
+client/window_dump2.xml
+client/window_dump3.xml
+client/window_dump4.xml
+client/window_dump5.xml
+
+# Server test and env copies
+server/.env copy
+server/test_cg.js
+
+# standard node ignores
+node_modules/
+.env
+.env.*
+!.env.example
